@@ -96,7 +96,7 @@ class _register_pgState extends State<register_pg> {
                 ),
                 const SizedBox(height: 5),
                 SizedBox(height: 15),
-                login_button(),
+                login_button(targetPage: login_pg(), name: "Register"),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(20, 0, 0, 0),
                   child: Row(

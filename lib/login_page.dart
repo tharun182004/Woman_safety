@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_app/Components/button.dart';
+import 'package:the_app/Components/home_page.dart';
 import 'package:the_app/Components/text_fields.dart';
 import 'package:the_app/Components/button.dart';
 import 'package:the_app/register_page.dart';
@@ -122,7 +123,7 @@ class _LoginPageState extends State<login_pg> {
                   ),
                 ),
                 SizedBox(height: 15),
-                login_button(),
+                login_button(targetPage: MainMenuPage(), name: "Login"),
               ],
             ),
           ),

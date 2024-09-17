@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:the_app/register_page.dart';
+import 'home_page.dart';
 
 class login_button extends StatelessWidget {
-  const login_button({super.key});
+  final Widget targetPage;
+  final String name;
+  const login_button({super.key, required this.targetPage, required this.name});
 
   @override
   Widget build(BuildContext context) {
@@ -14,8 +17,8 @@ class login_button extends StatelessWidget {
         child: GestureDetector(
           onTap: () {
             print("Button pressed");
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => register_pg()));
+            Navigator.push(
+                context, MaterialPageRoute(builder: (context) => targetPage));
           },
           child: Container(
             padding: EdgeInsets.all(13),
@@ -25,7 +28,7 @@ class login_button extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8)),
             child: Center(
               child: Text(
-                "Login",
+                name,
                 style: TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 16,
