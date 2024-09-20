@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_app/Components/drawer_appbar.dart';
+import 'package:the_app/location/location_map.dart';
 
 void main() {
   runApp(MyApp());
@@ -88,7 +89,10 @@ class MainMenuPage extends StatelessWidget {
                         children: [
                           buildMenuBox(context, Icons.location_on, 'Location',
                               () {
-                            print("Location Enabled");
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => Map_Page()));
                           }),
                           buildMenuBox(context, Icons.people, 'Parents', () {
                             print("Parent Option Enabled");

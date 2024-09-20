@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:the_app/register_page.dart';
-import 'home_page.dart';
+import '../home_page.dart';
 
 class login_button extends StatelessWidget {
   final Widget targetPage;

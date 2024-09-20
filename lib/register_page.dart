@@ -12,6 +12,7 @@ class register_pg extends StatefulWidget {
 
 class _register_pgState extends State<register_pg> {
   final usernameController = TextEditingController();
+  final emailController = TextEditingController();
   final passwordController = TextEditingController();
   @override
   Widget build(BuildContext context) {
@@ -47,7 +48,7 @@ class _register_pgState extends State<register_pg> {
                         ),
                         SizedBox(height: 10),
                         MyTextField(
-                          controller: passwordController,
+                          controller: emailController,
                           hintText: 'Email',
                           obsecureText: false,
                         ),
