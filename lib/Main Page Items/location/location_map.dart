@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:latlong2/latlong.dart';
+import 'package:hardware_button_listener/hardware_button_listener.dart';
 
 class Map_Page extends StatefulWidget {
   const Map_Page({super.key});
@@ -13,6 +14,32 @@ class Map_Page extends StatefulWidget {
 class _Map_PageState extends State<Map_Page> {
   final MapController _mapController = MapController();
   LatLng? _mylocation;
+
+late Stream<HardwareButtonListener> _volumeButtonStream;
+
+   @override
+  void initState() {
+    super.initState();
+    // Fetch and show the user's current location
+    _volumeButtonStream = HardwareButtonListener() as Stream<HardwareButtonListener>;
+    _listenToVolumeButtons();
+    _showCurrentLocation();
+    }
+    @override
+  void dispose() {
+    // Dispose listeners when the widget is removed
+    super.dispose();
+  }
+  
+   void _listenToVolumeButtons() {
+    _volumeButtonStream.listen((event) {
+      if (event.name == "VOLUME_DOWN") {
+        print("Volume Down button pressed. Triggering location fetch...");
+        _triggerLocationFetchAndSend();
+      }
+    });
+  }
+
 
   // Getting current position
   Future<Position> _determinePosition() async {
@@ -37,25 +64,53 @@ class _Map_PageState extends State<Map_Page> {
   }
 
   // Show current location
-  void _showCurrentLocation() async {
+  Future<LatLng?> fetchCurrentLocation() async {
     try {
       Position position = await _determinePosition();
-      LatLng currentLatLng = LatLng(position.latitude, position.longitude);
-      _mapController.move(currentLatLng, 13);
-      setState(() {
-        _mylocation = currentLatLng;
-      });
+      return LatLng(position.latitude, position.longitude);
     } catch (e) {
-      print(e);
+      print("Error fetching location: $e");
+      return null;
     }
   }
 
-  @override
-  void initState() {
-    super.initState();
-    // Fetch and show the user's current location
-    _showCurrentLocation();
+  
+
+
+extension on HardwareButtonListener {
+  get name => null;
+}
+  void _triggerLocationFetchAndSend() async {
+    try {
+      LatLng? currentLocation = await fetchCurrentLocation();
+      if (currentLocation != null) {
+        print("Current Location: $currentLocation");
+        setState(() {
+          _mylocation = currentLocation;
+        });
+        await _sendLocationToBackend(currentLocation);
+        print("Location sent to backend successfully!");
+      } else {
+        print("Failed to fetch location.");
+      }
+    } catch (e) {
+      print("Error in trigger process: $e");
+    }
   }
+
+  void _showCurrentLocation() async {
+      LatLng? location = await fetchCurrentLocation();
+      if (location != null) {
+        setState(() {
+          _mylocation = location;
+        });
+        _mapController.move(location, 15.0); // Adjust zoom level
+      } else {
+        print("Could not fetch current location.");
+      }
+    }
+
+
 
   @override
   Widget build(BuildContext context) {
