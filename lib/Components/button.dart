@@ -3,9 +3,9 @@ import 'package:the_app/register_page.dart';
 import '../home_page.dart';
 
 class login_button extends StatelessWidget {
-  final Widget targetPage;
   final String name;
-  const login_button({super.key, required this.targetPage, required this.name});
+  final VoidCallback onTap;
+  const login_button({super.key, required this.name, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
@@ -15,11 +15,7 @@ class login_button extends StatelessWidget {
         width: 120,
         height: 50,
         child: GestureDetector(
-          onTap: () {
-            print("Button pressed");
-            Navigator.push(
-                context, MaterialPageRoute(builder: (context) => targetPage));
-          },
+          onTap: onTap,
           child: Container(
             padding: EdgeInsets.all(13),
             margin: EdgeInsets.symmetric(horizontal: 5),

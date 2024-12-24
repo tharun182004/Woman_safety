@@ -30,7 +30,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-
+  contacts_service: ^0.6.3 # or the latest version available
+  permission_handler: ^11.3.1
+  shared_preferences: ^2.1.0
   google_maps_flutter: ^2.9.0
   flutter_map: ^7.0.2
   latlong2: ^0.9.1

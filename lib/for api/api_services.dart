@@ -66,6 +66,7 @@ class RegisterService {
 class LocationService {
   // Function to send the location to the backend
   Future<void> sendLocationToBackend(LatLng location) async {
+    final String url = '${baseUrl}register/';
     try {
       // Prepare the data to be sent
       Map<String, dynamic> locationData = {

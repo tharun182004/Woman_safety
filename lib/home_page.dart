@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:the_app/Components/drawer_appbar.dart';
-import 'package:the_app/location/location_map.dart';
+import 'package:the_app/Main Page Items/location/location_map.dart';
+import 'package:the_app/Main%20Page%20Items/people%20page/people_page.dart';
 
 void main() {
   runApp(MyApp());
@@ -94,8 +95,11 @@ class MainMenuPage extends StatelessWidget {
                                 MaterialPageRoute(
                                     builder: (context) => Map_Page()));
                           }),
-                          buildMenuBox(context, Icons.people, 'Parents', () {
-                            print("Parent Option Enabled");
+                          buildMenuBox(context, Icons.people, 'People', () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => PeoplePage()));
                           }),
                         ],
                       ),

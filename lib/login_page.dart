@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:the_app/Components/button.dart';
 import 'package:the_app/home_page.dart';
 import 'package:the_app/Components/text_fields.dart';
 import 'package:the_app/Components/button.dart';
 import 'package:the_app/register_page.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
+import 'for api/api_services.dart';
 
 class login_pg extends StatefulWidget {
   login_pg({super.key});
@@ -13,10 +17,67 @@ class login_pg extends StatefulWidget {
 }
 
 class _LoginPageState extends State<login_pg> {
+  final usernameController = TextEditingController();
+  final passwordController = TextEditingController();
+  bool _isLoading = false;
+  Future<void> handleLogin() async {
+    if (_isLoading) return; // Prevent multiple taps
+    setState(() => _isLoading = true);
+
+    try {
+      final http.Response? response = await LoginService.login(
+          usernameController.text, passwordController.text);
+
+      if (!mounted) return;
+
+      setState(() => _isLoading = false); // Reset loading state after response
+
+      if (response != null && response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        if (responseData['status'] == 'Success') {
+          final token = responseData['token'];
+          print("Token stored, token : $token");
+
+          SharedPreferences pref = await SharedPreferences.getInstance();
+          await pref.setString('auth_token', token);
+          print("Token stored successfully");
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => MainMenuPage()),
+          );
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login successful!')),
+          );
+        } else {
+          final errorMessage =
+              responseData['message'] ?? 'Login failed. Please try again.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        }
+      } else {
+        final errorResponse =
+            response != null ? json.decode(response.body) : null;
+        String errorMessage = "Invalid login details";
+        if (errorResponse is Map) {
+          errorMessage = errorResponse.values
+              .map((value) =>
+                  value is List ? value.join(", ") : value.toString())
+              .join("\n");
+        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } catch (e) {
+      setState(() => _isLoading = false);
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred: $e')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    final usernameController = TextEditingController();
-    final passwordController = TextEditingController();
     return Scaffold(
         backgroundColor: Colors.transparent,
         body: Stack(children: [
@@ -108,7 +169,7 @@ class _LoginPageState extends State<login_pg> {
                       SizedBox(width: 5),
                       GestureDetector(
                         onTap: () {
-                          Navigator.push(
+                          Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(
                                   builder: (context) => register_pg()));
@@ -123,7 +184,7 @@ class _LoginPageState extends State<login_pg> {
                   ),
                 ),
                 SizedBox(height: 15),
-                login_button(targetPage: MainMenuPage(), name: "Login"),
+                login_button(name: "Login", onTap: handleLogin),
               ],
             ),
           ),

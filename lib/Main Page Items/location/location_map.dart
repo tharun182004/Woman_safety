@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:latlong2/latlong.dart';
 import 'package:hardware_button_listener/hardware_button_listener.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:the_app/for api/api_services.dart';
 
 class Map_Page extends StatefulWidget {
   const Map_Page({super.key});
@@ -14,24 +15,25 @@ class Map_Page extends StatefulWidget {
 class _Map_PageState extends State<Map_Page> {
   final MapController _mapController = MapController();
   LatLng? _mylocation;
+  late Stream<HardwareButtonListener> _volumeButtonStream;
 
-late Stream<HardwareButtonListener> _volumeButtonStream;
-
-   @override
+  @override
   void initState() {
     super.initState();
     // Fetch and show the user's current location
-    _volumeButtonStream = HardwareButtonListener() as Stream<HardwareButtonListener>;
+    _volumeButtonStream =
+        HardwareButtonListener() as Stream<HardwareButtonListener>;
     _listenToVolumeButtons();
     _showCurrentLocation();
-    }
-    @override
+  }
+
+  @override
   void dispose() {
     // Dispose listeners when the widget is removed
     super.dispose();
   }
-  
-   void _listenToVolumeButtons() {
+
+  void _listenToVolumeButtons() {
     _volumeButtonStream.listen((event) {
       if (event.name == "VOLUME_DOWN") {
         print("Volume Down button pressed. Triggering location fetch...");
@@ -39,7 +41,6 @@ late Stream<HardwareButtonListener> _volumeButtonStream;
       }
     });
   }
-
 
   // Getting current position
   Future<Position> _determinePosition() async {
@@ -74,12 +75,6 @@ late Stream<HardwareButtonListener> _volumeButtonStream;
     }
   }
 
-  
-
-
-extension on HardwareButtonListener {
-  get name => null;
-}
   void _triggerLocationFetchAndSend() async {
     try {
       LatLng? currentLocation = await fetchCurrentLocation();
@@ -88,7 +83,7 @@ extension on HardwareButtonListener {
         setState(() {
           _mylocation = currentLocation;
         });
-        await _sendLocationToBackend(currentLocation);
+        await LocationService().sendLocationToBackend(currentLocation);
         print("Location sent to backend successfully!");
       } else {
         print("Failed to fetch location.");
@@ -99,18 +94,16 @@ extension on HardwareButtonListener {
   }
 
   void _showCurrentLocation() async {
-      LatLng? location = await fetchCurrentLocation();
-      if (location != null) {
-        setState(() {
-          _mylocation = location;
-        });
-        _mapController.move(location, 15.0); // Adjust zoom level
-      } else {
-        print("Could not fetch current location.");
-      }
+    LatLng? location = await fetchCurrentLocation();
+    if (location != null) {
+      setState(() {
+        _mylocation = location;
+      });
+      _mapController.move(location, 15.0); // Adjust zoom level
+    } else {
+      print("Could not fetch current location.");
     }
-
-
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -134,14 +127,16 @@ extension on HardwareButtonListener {
                 MarkerLayer(
                   markers: [
                     Marker(
-                        width: 80.0,
-                        height: 80.0,
-                        point: _mylocation!,
-                        child: Builder(
-                            builder: (context) => const Icon(
-                                  Icons.location_pin,
-                                  color: Colors.red,
-                                ))),
+                      width: 80.0,
+                      height: 80.0,
+                      point: _mylocation!,
+                      child: Builder(
+                        builder: (context) => const Icon(
+                          Icons.location_pin,
+                          color: Colors.red,
+                        ),
+                      ),
+                    ),
                   ],
                 ),
             ],
@@ -159,4 +154,8 @@ extension on HardwareButtonListener {
       ),
     );
   }
+}
+
+extension on HardwareButtonListener {
+  get name => null;
 }
