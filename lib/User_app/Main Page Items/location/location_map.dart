@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:hardware_button_listener/hardware_button_listener.dart';
+
 import 'package:latlong2/latlong.dart';
 import 'package:the_app/for api/api_services.dart';
+
+final GlobalKey<_Map_PageState> mapPageKey = GlobalKey<_Map_PageState>();
 
 class Map_Page extends StatefulWidget {
   const Map_Page({super.key});
@@ -15,15 +17,13 @@ class Map_Page extends StatefulWidget {
 class _Map_PageState extends State<Map_Page> {
   final MapController _mapController = MapController();
   LatLng? _mylocation;
-  late Stream<HardwareButtonListener> _volumeButtonStream;
+  late DateTime pressStartTime;
 
   @override
   void initState() {
     super.initState();
     // Fetch and show the user's current location
-    _volumeButtonStream =
-        HardwareButtonListener() as Stream<HardwareButtonListener>;
-    _listenToVolumeButtons();
+    // _listenToVolumeButtons();
     _showCurrentLocation();
   }
 
@@ -33,35 +33,47 @@ class _Map_PageState extends State<Map_Page> {
     super.dispose();
   }
 
-  void _listenToVolumeButtons() {
-    _volumeButtonStream.listen((event) {
-      if (event.name == "VOLUME_DOWN") {
-        print("Volume Down button pressed. Triggering location fetch...");
-        _triggerLocationFetchAndSend();
-      }
-    });
-  }
-
   // Getting current position
   Future<Position> _determinePosition() async {
-    bool serviceEnabled;
-    LocationPermission permission;
-
-    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
     if (!serviceEnabled) {
-      return Future.error("Location services are disabled");
+      _showPermissionDialog("Enable location services to proceed.");
+      throw Exception("Location services are disabled.");
     }
-    permission = await Geolocator.checkPermission();
+
+    LocationPermission permission = await Geolocator.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
       if (permission == LocationPermission.denied) {
-        return Future.error("Location permissions are denied");
+        _showPermissionDialog("Location permissions are required.");
+        throw Exception("Location permissions are denied.");
       }
     }
+
     if (permission == LocationPermission.deniedForever) {
-      return Future.error("Location permissions are permanently denied");
+      _showPermissionDialog("Location permissions are permanently denied.");
+      throw Exception("Location permissions are permanently denied.");
     }
+
     return await Geolocator.getCurrentPosition();
+  }
+
+  void _showPermissionDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Permission Required"),
+          content: Text(message),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   // Show current location
@@ -75,21 +87,17 @@ class _Map_PageState extends State<Map_Page> {
     }
   }
 
-  void _triggerLocationFetchAndSend() async {
+  Future _triggerLocationFetchAndSend() async {
     try {
       LatLng? currentLocation = await fetchCurrentLocation();
       if (currentLocation != null) {
-        print("Current Location: $currentLocation");
-        setState(() {
-          _mylocation = currentLocation;
-        });
-        await LocationService().sendLocationToBackend(currentLocation);
-        print("Location sent to backend successfully!");
-      } else {
-        print("Failed to fetch location.");
+        setState(() => _mylocation = currentLocation);
+        await LocationService()
+            .sendLocationToBackend(currentLocation as Position);
+        print("Location sent to backend successfully! $_mylocation");
       }
     } catch (e) {
-      print("Error in trigger process: $e");
+      print("Error sending location: $e");
     }
   }
 
@@ -154,8 +162,4 @@ class _Map_PageState extends State<Map_Page> {
       ),
     );
   }
-}
-
-extension on HardwareButtonListener {
-  get name => null;
 }

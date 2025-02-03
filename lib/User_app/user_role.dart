@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:the_app/login_page.dart';
+import 'package:the_app/User_app/login_page.dart';
+import 'package:the_app/admin_app/Loginpage.dart';
 
 class role_based_login extends StatefulWidget {
   const role_based_login({super.key});
@@ -76,6 +77,10 @@ class role_based_loginState extends State<role_based_login> {
                   width: MediaQuery.of(context).size.width * 0.60,
                   height: MediaQuery.of(context).size.height * 0.06,
                   child: GestureDetector(
+                    onTap: () {
+                      Navigator.push(context,
+                          MaterialPageRoute(builder: (context) => loginpage()));
+                    },
                     child: Container(
                       padding: EdgeInsets.all(13),
                       margin: EdgeInsets.symmetric(horizontal: 5),

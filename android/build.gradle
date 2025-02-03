@@ -1,3 +1,16 @@
+buildscript {
+    ext.kotlin_version = '1.9.22'
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        // Correct placement of classpath inside buildscript
+        classpath 'com.android.tools.build:gradle:8.5.1' // Ensure this version is correct
+        // Add other dependencies as needed
+    }
+}
+
 allprojects {
     repositories {
         google()
@@ -12,7 +25,17 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(":app")
 }
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
 
+subprojects {
+    tasks.withType(org.jetbrains.kotlin.gradle.tasks.KotlinCompile).configureEach {
+        kotlinOptions {
+            jvmTarget = "17" // Align Kotlin JVM target
+        }
+    }
+}
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }

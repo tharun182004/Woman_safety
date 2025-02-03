@@ -1,10 +1,10 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:the_app/Components/button.dart';
-import 'package:the_app/Components/text_fields.dart';
-import 'package:the_app/login_page.dart';
-import 'for api/api_services.dart';
+import 'package:the_app/User_app/Components/button.dart';
+import 'package:the_app/User_app/Components/text_fields.dart';
+import 'package:the_app/User_app/login_page.dart';
+import '../for api/api_services.dart';
 
 class register_pg extends StatefulWidget {
   const register_pg({super.key});
@@ -33,7 +33,7 @@ class _register_pgState extends State<register_pg> {
 
     if (!mounted) return;
 
-    if (response != null && response.statusCode == 201) {
+    if (response != null) {
       //print("Request successful");
       final responseData = json.decode(response.body);
       print("Response data: $responseData");
@@ -42,18 +42,40 @@ class _register_pgState extends State<register_pg> {
         print("Login successful, navigating to home page");
 
         if (!mounted) return; // Ensure widget is still in the tree
+        final message = responseData['message'] ?? 'Registration successful';
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text(responseData['message'])));
+            .showSnackBar(SnackBar(content: Text(message)));
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => login_pg()),
         );
       } else {
-        final errorMessage =
-            responseData['error'] ?? 'Login failed. Please try again.';
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage)),
-        );
+        if (responseData['errors'] is Map) {
+          // Extract error messages from the map
+          final errors = responseData['errors'] as Map<String, dynamic>;
+          String errorMessage = errors.entries.map((entry) {
+            final key = entry.key;
+            final value = entry.value;
+            if (value is List) {
+              return '$key: ${value.join(", ")}'; // Format list of errors
+            } else if (value is String) {
+              return '$key: $value'; // Handle string values
+            }
+            return '$key: Unknown error'; // Fallback for unexpected cases
+          }).join("\n");
+
+          // Display formatted error messages
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        } else {
+          // Fallback for unexpected error structure
+          final errorMessage =
+              responseData['message'] ?? 'Login failed. Please try again.';
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(errorMessage)),
+          );
+        }
       }
     } else {
       print("Error connecting to server");

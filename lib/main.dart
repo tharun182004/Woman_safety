@@ -1,19 +1,36 @@
 import 'package:flutter/material.dart';
-import 'package:the_app/login_page.dart';
-import 'package:the_app/user_role.dart';
 
-void main() {
-  runApp(const My_App());
+import 'token_check.dart';
+
+void main() async {
+  /*
+  WidgetsFlutterBinding.ensureInitialized();
+  await Permission.notification.isDenied.then(
+    (value) {
+      if (value) {
+        Permission.notification.request();
+      }
+    },
+  );
+  // Initialize notification service
+  await NotificationService.initializeNotification();
+
+  await NotificationService.createSOSNotification();
+
+  // Initialize background service
+  //await initializeService();
+  */
+
+  runApp(MyApp());
+  //FlutterBackgroundService().invoke('setasforeground');
 }
 
-class My_App extends StatelessWidget {
-  const My_App({super.key});
-
+class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    //showPersistentSOSNotification();
     return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: role_based_login(),
+      home: CheckToken(),
     );
   }
 }
