@@ -5,7 +5,7 @@ import 'package:http/http.dart' as http;
 
 import 'package:shared_preferences/shared_preferences.dart';
 
-String baseUrl = 'http://192.168.0.113:8000/user_app/';
+String baseUrl = 'http://172.15.22.3:8000/user_app/';
 
 class LoginService {
   // Function for login

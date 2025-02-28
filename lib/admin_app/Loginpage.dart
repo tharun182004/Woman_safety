@@ -81,13 +81,20 @@ class _loginpageState extends State<loginpage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepPurple[900],
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.deepPurple[900]!, Color(0xFF4A148C)],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
         child: Center(
           child: Container(
             height: MediaQuery.of(context).size.height * 0.5,
             width: MediaQuery.of(context).size.width * 0.9,
             decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.black.withOpacity(0.3),
                 borderRadius: BorderRadius.circular(15)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -96,7 +103,10 @@ class _loginpageState extends State<loginpage> {
                   padding: const EdgeInsets.all(15.0),
                   child: Text(
                     "Login",
-                    style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white),
                   ),
                 ),
                 SizedBox(height: 20),
@@ -106,13 +116,12 @@ class _loginpageState extends State<loginpage> {
                     controller: usernamecontroller,
                     decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromARGB(255, 10, 9, 9)),
+                            borderSide: BorderSide(color: Color(0xFFD8B6FF)),
                             borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.black)),
-                        fillColor: Color.fromARGB(255, 203, 180, 240),
+                            borderSide: BorderSide(color: Colors.white)),
+                        fillColor: Color(0xFFF5E1FD),
                         filled: true,
                         hintText: "Username",
                         hintStyle: TextStyle(fontSize: 15)),
@@ -125,13 +134,12 @@ class _loginpageState extends State<loginpage> {
                     controller: passwordcontroller,
                     decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                            borderSide: BorderSide(
-                                color: Color.fromARGB(255, 10, 9, 9)),
+                            borderSide: BorderSide(color: Color(0xFFD8B6FF)),
                             borderRadius: BorderRadius.circular(10)),
                         focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide(color: Colors.black)),
-                        fillColor: const Color.fromARGB(255, 203, 180, 240),
+                            borderSide: BorderSide(color: Colors.white)),
+                        fillColor: const Color(0xFFF5E1FD),
                         filled: true,
                         hintText: 'Password',
                         hintStyle: TextStyle(fontSize: 15)),
@@ -139,35 +147,38 @@ class _loginpageState extends State<loginpage> {
                   ),
                 ),
                 SizedBox(height: 30),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  children: [
-                    Padding(
-                      padding: const EdgeInsets.all(10.0),
-                      child: GestureDetector(
-                        onTap: () {
-                          print("Button clicked");
-                          handleLogin();
-                        },
-                        child: Container(
-                          margin: EdgeInsets.symmetric(horizontal: 10),
-                          height: 50,
-                          width: 80,
-                          decoration: BoxDecoration(
-                              color: const Color.fromARGB(255, 157, 151, 202),
-                              borderRadius: BorderRadius.circular(10)),
-                          child: Padding(
-                            padding: const EdgeInsets.only(top: 10, left: 10),
-                            child: Text(
-                              "SignIn",
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold, fontSize: 18),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 15.0),
+                    child: GestureDetector(
+                      onTap: handleLogin,
+                      child: Container(
+                        height: 50,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Color(0xFFF5E1FD),
+                          borderRadius: BorderRadius.circular(10),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black26,
+                              blurRadius: 8,
+                              offset: Offset(2, 4),
+                            )
+                          ],
+                        ),
+                        child: Center(
+                          child: Text(
+                            "Sign In",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 18,
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ],
+                  ),
                 )
               ],
             ),

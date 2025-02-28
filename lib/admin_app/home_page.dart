@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:geolocator/geolocator.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter/material.dart';
 import 'package:the_app/admin_app/google_map_admin_app.dart';
@@ -22,34 +23,119 @@ class _Home_PageState extends State<Home_Page> {
   void initState() {
     super.initState();
     fetchlocation();
+    _requestLocationPermission();
     Timer.periodic(Duration(minutes: 5), (Timer timer) {
       fetchlocation();
     }); // Fetch posts on page load
   }
 
-  Future<void> requestPermissions() async {
-    // Request location permission
-    var locationStatus = await Permission.location.request();
-    if (locationStatus.isGranted) {
-      print("Location permission granted");
-    } else {
-      print("Location permission denied");
-    }
+  Future<void> _requestLocationPermission() async {
+    var status = await Permission.location.status;
 
-    // Request notification permission
-    var notificationStatus = await Permission.notification.request();
-    if (notificationStatus.isGranted) {
-      print("Notification permission granted");
+    if (status.isDenied) {
+      // Request permission
+      if (await Permission.location.request().isGranted) {
+        print("Location permission granted!");
+        _checkLocationServices();
+      } else {
+        print("Location permission denied!");
+        _showPermissionDeniedDialog();
+      }
+    } else if (status.isPermanentlyDenied) {
+      print("Location permission permanently denied!");
+      _showSettingsDialog();
     } else {
-      print("Notification permission denied");
+      print("Location permission already granted!");
+      _checkLocationServices();
     }
   }
 
+//checks whether the location is enabled or not
+  Future<void> _checkLocationServices() async {
+    bool isLocationEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!isLocationEnabled) {
+      _showEnableLocationDialog();
+    } else {
+      print("Location services are enabled.");
+    }
+  }
+
+  void _showPermissionDeniedDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Permission Denied"),
+        content: Text(
+          "Location permission is required for this feature. Please enable it in your device settings.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSettingsDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Permission Required"),
+        content: Text(
+          "Location permission is permanently denied. Open settings to enable it.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              openAppSettings();
+              Navigator.pop(context);
+            },
+            child: Text("Open Settings"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showEnableLocationDialog() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Enable Location Services"),
+        content: Text(
+          "Location services are turned off. Please enable them to proceed.",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Geolocator.openLocationSettings();
+              Navigator.pop(context);
+            },
+            child: Text("Open Settings"),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("Cancel"),
+          ),
+        ],
+      ),
+    );
+  }
+
+//location to fetch location
   Future<void> fetchlocation() async {
     try {
       final fetchedlocation = await apiService.getLocationFromBackend();
 
       if (fetchedlocation is List<Map<String, String>>) {
+        fetchedlocation.sort((a, b) => b['updated']!.compareTo(a['updated']!));
+
         setState(() {
           location = fetchedlocation;
           isLoading = false;
@@ -65,6 +151,7 @@ class _Home_PageState extends State<Home_Page> {
     }
   }
 
+// to display the fetched response from the backend in the home screen page
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
